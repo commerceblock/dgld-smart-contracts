@@ -1,4 +1,4 @@
-pragma solidity ^0.6.6;
+pragma solidity ^0.6.4;
 
 
 import './StandardToken.sol';
@@ -18,7 +18,7 @@ contract GoldToken is StandardToken {
 
     uint256 public totalSupply = 0;
 
-    function CommerceBlockToken(address pegin) {
+    constructor(address pegin) {
       balances[pegin] = totalSupply;
     }
 

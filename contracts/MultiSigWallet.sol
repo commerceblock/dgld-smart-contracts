@@ -1,4 +1,4 @@
-pragma solidity 0.6.6;
+pragma solidity ^0.6.4;
 
 
 /// @title Multisignature wallet - Allows multiple parties to agree on transactions before execution.
