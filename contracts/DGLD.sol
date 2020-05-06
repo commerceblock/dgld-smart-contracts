@@ -12,7 +12,7 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
 
   constructor() public ERC20Detailed(NAME, SYMBOL, DECIMALS)
                        ERC20Mintable(){
-    _mint(msg.sender, INITIAL_SUPPLY);	
+     mint(msg.sender, INITIAL_SUPPLY);	
   }
 
 //  function mint(address account, uint256 amount) public whenNotPaused returns (bool) {

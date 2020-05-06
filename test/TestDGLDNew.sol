@@ -3,27 +3,16 @@ import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
 import "../contracts/DGLD.sol";
 
-contract TestDGLD {
+contract TestDGLDNew {
 
   uint INITIAL_TOKENS = 100000; 
   uint DECIMAL = 8;
-
 
   function assertBalance(DGLD tokenContract, address addr, uint expected) private {
     Assert.equal(tokenContract.balanceOf(addr), expected, "Incorrect number of tokens");	
   }
 
-  function testInitialBalanceUsingDeployedContract() public {
-    DGLD dgld = DGLD(DeployedAddresses.DGLD());
-
-    uint expected = INITIAL_TOKENS * DECIMAL;
-
-    assertBalance(dgld, tx.origin, expected);
-  }
-
-
-
-   function testInitialBalanceWithNewContract() public {
+   function testInitialBalance() public {
      DGLD dgld = new DGLD();     
 
      uint expected = INITIAL_TOKENS * DECIMAL;
