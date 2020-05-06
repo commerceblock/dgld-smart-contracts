@@ -1,17 +1,22 @@
-qpragma solidity >=0.4.24<0.6.0;
+pragma solidity >=0.4.24<0.6.0;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
 
-//Token name, token symbol, number of decimal places
-contract DGLD is ERC20Detailed("DGLD", "DGLD",2), ERC20 {
-//  string public name="DGLD";
-//  string public symbol="DGLD";
-//  uint8  public decimals=2;
-  uint INITIAL_SUPPLY=12000;
+contract DGLD is ERC20Detailed, ERC20Mintable {
+  uint8 __decimals = 8;
+  string __name = "DGLD";
+  string __symbol = "DGLD";
+  uint INITIAL_SUPPLY = 100000 * __decimals;
 
-  constructor() public {
-    _mint(msg.sender, INITIAL_SUPPLY);	
+  constructor() public ERC20Detailed(__name, __symbol, __decimals)
+                       ERC20Mintable(){
+    mint(msg.sender, INITIAL_SUPPLY);	
   }
+
+//  function mint(address account, uint256 amount) public whenNotPaused returns (bool) {
+//    return super.mint(account, amount);
+//  }
 }
 
