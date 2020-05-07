@@ -9,10 +9,10 @@ contract TestDGLDDeployed {
   uint DECIMAL = 8;
   //A random initial nonce
 
-  function getNewRandomishAddress() public
-    returns (address addr) {
-    addr = address(uint160(uint(keccak256(abi.encodePacked(now)))));
-  }
+//  function getNewRandomishAddress() public
+//    returns (address addr) {
+//    addr = address(uint160(uint(keccak256(abi.encodePacked(now)))));
+//  }
 
 
   function assertBalance(DGLD tokenContract, address addr, uint expected) private {
@@ -27,23 +27,23 @@ contract TestDGLDDeployed {
     assertBalance(dgld, tx.origin, expected);
   }
 
-  function testMinting() public {
-      DGLD dgld = DGLD(DeployedAddresses.DGLD());
+//  function testMinting() public {
+//      DGLD dgld = DGLD(DeployedAddresses.DGLD());
 
-      address addr1 = getNewRandomishAddress();
+//      address addr1 = getNewRandomishAddress();
 
-      //Check balance of addr1 initialy zero
-      assertBalance(dgld, addr1, 0);
+//      //Check balance of addr1 initialy zero
+//      assertBalance(dgld, addr1, 0);
 
-      uint nToMint=1000;      
+//      uint nToMint=1000;      
 
-      //Check that minting fails for non-minter
-      dgld.mint(addr1, nToMint);
+//      //Check that minting fails for non-minter
+//      dgld.mint(addr1, nToMint);
 
 
 
-      //New balance
-      assertBalance(dgld, addr1, nToMint);
-  }
+//      //New balance
+//      assertBalance(dgld, addr1, nToMint);
+//  }
 
 }

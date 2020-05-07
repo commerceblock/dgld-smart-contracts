@@ -5,18 +5,21 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
 
 contract DGLD is ERC20Detailed, ERC20Mintable {
-  uint8 DECIMALS = 8;
-  string NAME = "DGLD";
-  string SYMBOL = "DGLD";
-  uint INITIAL_SUPPLY = 100000 * DECIMALS;
 
-  constructor() public ERC20Detailed(NAME, SYMBOL, DECIMALS)
+  uint256 _initialSupply;
+
+  //name, sumbol, decimals
+  constructor() public ERC20Detailed("DGLD", "DGLD", 8)
                        ERC20Mintable(){
-     mint(msg.sender, INITIAL_SUPPLY);	
+
+     _initialSupply = 100000 * decimals();
+     mint(msg.sender, _initialSupply);	
   }
 
-//  function mint(address account, uint256 amount) public whenNotPaused returns (bool) {
-//    return super.mint(account, amount);
-//  }
+  function initialSupply() public view returns (uint256)
+  {
+     return _initialSupply;
+  }
+
 }
 
