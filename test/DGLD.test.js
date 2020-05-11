@@ -6,7 +6,8 @@ contract('DGLD', accounts => {
 	initialSupply: 800000,
 	name: "DGLD",
 	symbol: "DGLD",
-	pegAddress: "0x00000000000000000000000000000000009ddEAd"
+	pegAddress: "0x00000000000000000000000000000000009ddEAd",
+	minterAccounts: [1,0,0,0,0,0,0,0,0,0]
     }
 
     const errors = {
@@ -69,6 +70,37 @@ contract('DGLD', accounts => {
 	    })
     });
     
+    it("only account[0] should have the minter role initially", function(){
+	var dgld;
+
+	let chain = DGLD.deployed()
+	    .then(instance => dgld = instance);
+
+	function checkMinter(acc, index) {
+	    if (index == 0) {
+		chain = chain.then( () => dgld.isMinter.call(acc))
+		    .then( function(result) {
+			isMinter = result;
+			console.log(isMinter);
+			return assert.equal(isMinter,
+					    true,
+					    "account[0] should be a minter.");
+		    });
+	    } else {
+		chain=chain
+		    .then(() => dgld.isMinter.call(acc))
+		    .then( function(result) {
+			return assert.equal(result,
+					    false,
+					    "account[" + index + "] should not be a minter.");
+		    })
+	    }
+	}
+	    
+	accounts.forEach(checkMinter);
+
+	return chain;
+    });
 
 
     it("should mint 10000 tokens to account[0]", function(){
