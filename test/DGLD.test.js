@@ -5,7 +5,8 @@ contract('DGLD', accounts => {
     const expected = {
 	initialSupply: 800000,
 	name: "DGLD",
-	symbol: "DGLD"
+	symbol: "DGLD",
+	pegAddress: "0x00000000000000000000000000000000009ddEAd"
     }
 
     const errors = {
@@ -18,15 +19,14 @@ contract('DGLD', accounts => {
 	   return DGLD.deployed()
 	       .then(instance => dgld=instance)
 	       .then(() => dgld.initialSupply.call())
-	       .then(result => assert.equal(
+	       .then(result =>
+		   assert.equal(
 		   result.toNumber(),
 		   expected.initialSupply,
-		   "initialSupply() was not "  + expected.initialSupply.toString())
-		    );
+		       "initialSupply() was not "  + expected.initialSupply.toString()))
+		    
        }
       );
-
-
 
     it("should put " + expected.initialSupply + " tokens in account[0] initially", function() {
 	var dgld;
@@ -132,23 +132,53 @@ contract('DGLD', accounts => {
        function() {
 	   var dgld;
 	   var nToMint=10000;
-	   DGLD.deployed()
+	   var nAccount=2;
+	   var initialBalance;
+	   return DGLD.deployed()
+
+
 	       .then(function(instance) {
 		   dgld = instance;
-		   dgld.addMinter(accounts[2])
+		   return dgld.balanceOf.call(accounts[nAccount]);
 	       })
-	       .then( () => dgld.renounceMinter(accounts[2])) 
-	       .then(() => dgld.mint(accounts[2], nToMint, {from: accounts[2]}))
-	       .then(() => dgld.balanceOf.call(accounts[2]))
+	       .then( result => initialBalance = result)
+	       .then(() => dgld.addMinter(accounts[nAccount], {from: accounts[0]}))
+	       .then(() => dgld.isMinter.call(accounts[nAccount]))
+	       .then( result => assert.equal(result, true, "account[" + nAccount + "] should be a minter"))
+	       .then( () => dgld.renounceMinter({from: accounts[nAccount]}))
+	       .then(() => dgld.isMinter.call(accounts[nAccount]))
+	       .then( result => assert.equal(result, false, "account[" + nAccount + "] should not be a minter"))
+	       .then(() => dgld.mint(accounts[nAccount], nToMint, {from: accounts[nAccount]}))
+	       .then(() => dgld.balanceOf.call(accounts[nAccount]))
                .then(function(balance) {
-		   assert.equal(
-		       balance.valueOf(),
-		       0,
+		   console.log(balance.toNumber());
+		   console.log(balance);
+		   return assert.equal(
+		       balance.toNumber(),
+		       initialBalance.toNumber(),
 		       "account[" + nAccount + "] should not have beeen able to mint tokens"
-		   )
-	       }).catch(function(error) {
-		   assert.equal(error.toString(), errors.nonMinter);
+		   );
 	       })
+       .catch(function(error) {
+		   assert.equal(error.toString(), errors.nonMinter);
+       })
        });
+      
+
+
+    it("getPegAddress() should return " + expected.pegAddress.toString(), function() {
+	return DGLD.deployed()
+	    .then(instance=> dgld.getPegAddress.call())
+	    .then(function(result) {
+		console.log("Peg address:");
+		console.log(result);
+		return assert.equal(
+		    result,
+		    expected.pegAddress,
+		    "value of getPegAddress() was not "  + expected.pegAdddress);
+	    }
+		 );
+    });
+
 
 });
