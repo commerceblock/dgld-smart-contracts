@@ -1,35 +1,55 @@
 const DGLD = artifacts.require('DGLD');
 
+const expected = {
+    name: "DGLD",
+    symbol: "DGLD",
+    decimals: 8,
+    initialSupply: 800000,
+    pegAddress: "0x00000000000000000000000000000000009ddEAd"
+}
+
+const errors = {
+    nonMinter: "Error: Returned error: VM Exception while processing transaction: revert MinterRole: caller does not have the Minter role -- Reason given: MinterRole: caller does not have the Minter role.",
+    allowance: "Error: Returned error: VM Exception while processing transaction: revert ERC20: transfer amount exceeds allowance -- Reason given: ERC20: transfer amount exceeds allowance.",
+    balance: "Error: Returned error: VM Exception while processing transaction: revert ERC20: transfer amount exceeds balance -- Reason given: ERC20: transfer amount exceeds balance."
+}
+
+function requireError(error, expectedError){
+    assert(error, "requireError: no error thrown");
+    assert.equal(error.toString(), expectedError, "requireError: unexpected error");
+}
+
 //Start test block
-contract('DGLD', accounts => {
-    const expected = {
-	initialSupply: 800000,
-	name: "DGLD",
-	symbol: "DGLD",
-	pegAddress: "0x00000000000000000000000000000000009ddEAd"
-    }
-	
-    const errors = {
-	nonMinter: "Error: Returned error: VM Exception while processing transaction: revert MinterRole: caller does not have the Minter role -- Reason given: MinterRole: caller does not have the Minter role.",
-	allowance: "Error: Returned error: VM Exception while processing transaction: revert ERC20: transfer amount exceeds allowance -- Reason given: ERC20: transfer amount exceeds allowance."
-    }
+contract('DGLD constants and initialization test', accounts => {
 
-    var vtotal = {
-	minted: 0
-    }
+    it("name should be " + expected.name, function() {
+	return DGLD.deployed()
+	    .then(instance => instance.name.call())
+	    .then( name => assert.equal(name, expected.name, "incorrect name"));
+    });
 
+    it("symbol should be " + expected.symbol, function() {
+	return DGLD.deployed()
+	    .then(instance => instance.symbol.call())
+	    .then( symbol => assert.equal(symbol, expected.symbol, "incorrect symbol"));
+    });
 
+    it("decimals should be " + expected.decimals, function() {
+	return DGLD.deployed()
+	    .then(instance => instance.decimals.call())
+	    .then( decimals => assert.equal(decimals, expected.decimals, "incorrect decimals"));
+    });
+        
     it("initialSupply() should return " + expected.initialSupply.toString(), function()
        {
 	   return DGLD.deployed()
-	       .then(instance => dgld=instance)
-	       .then(() => dgld.initialSupply.call())
+	       .then(instance => instance.initialSupply.call())
 	       .then(result =>
 		   assert.equal(
 		   result.toNumber(),
-		   expected.initialSupply,
+		       expected.initialSupply,
 		       "initialSupply() was not "  + expected.initialSupply.toString()))
-		    
+	   
        }
       );
 
@@ -40,7 +60,6 @@ contract('DGLD', accounts => {
 	})
 	    .then(() =>  dgld.balanceOf.call(accounts[0]))
 	    .then(function(balance) {
-//		console.log(balance);
 		return assert.equal(
 		    balance.toNumber(),
 		    expected.initialSupply,
@@ -50,7 +69,35 @@ contract('DGLD', accounts => {
     }
       );
 
+    it("getPegAddress() should return " + expected.pegAddress.toString(), function() {
+	return DGLD.deployed()
+	    .then(instance => instance.getPegAddress.call())
+	    .then(function(result) {
+		return assert.equal(
+		    result,
+		    expected.pegAddress,
+		    "value of getPegAddress() was not "  + expected.pegAdddress);
+	    }
+		 );
+    });
 
+    it("totalSupply() should be " + expected.initialSupply + " initially", function() {
+	var dgld;
+
+	return DGLD.deployed()
+	    .then(instance => dgld = instance)
+	    .then( () => dgld.totalSupply.call())
+	    .then( function(result) {
+		let ts=result.toNumber();
+		return assert.equal(ts,
+				    expected.initialSupply,
+				    "totalSupply() amount incorrect: " + ts.toString());
+	    });
+    });
+});
+
+contract('DGLD transfer and allowance test', accounts => {
+	 	 
     const ctransfer = {
 	amount: 5000,
     }
@@ -77,11 +124,11 @@ contract('DGLD', accounts => {
 	    })
     });
 
-
     it("should fail to transferFrom " + ctransfer.amount + " tokens without allowance", function() {
 	var dgld;
 	var account0Initial;
 	var account1Initial;
+	
      return DGLD.deployed().then(function(instance){
 	 dgld = instance;
      })
@@ -90,6 +137,9 @@ contract('DGLD', accounts => {
 	    .then(() =>  dgld.balanceOf.call(accounts[1]))
 	    .then(result => account1Initial = result.toNumber())
 	    .then(() => dgld.transferFrom(accounts[1], accounts[0], ctransfer.amount))
+	//Require the error to be caught
+	    .catch((error) => error)
+	    .then(error => requireError(error, errors.allowance))
 	    .then(() =>  dgld.balanceOf.call(accounts[0]))
 	    .then(function(result){
 		assert.equal(result.toNumber(), account0Initial, 'transfer: accounts[0] balance is wrong');
@@ -97,23 +147,133 @@ contract('DGLD', accounts => {
 	    })
 	    .then(function(result){
 		assert.equal(result.toNumber(), account1Initial, 'transfer: accounts[1] balance is wrong');
-	    }).catch(function(error) {
-		   assert.equal(error.toString(), errors.allowance);
 	    })
     });    
+
+    const vapproval = {
+	amount: 100,
+	from: 1,
+	to: 2,
+    };
+    
+    it("should succeed to transfer no more than " + vapproval.amount + " from another account given approval", function() {
+	var dgld;
+	var fromInitial;
+	var toInitial;
+     return DGLD.deployed().then(function(instance){
+	 dgld = instance;
+     })
+	    .then(() =>  dgld.balanceOf.call(accounts[vapproval.from]))
+	    .then(result => fromInitial = result.toNumber())
+	    .then(() =>  dgld.balanceOf.call(accounts[vapproval.to]))
+	    .then(result => toInitial = result.toNumber())
+	// Not allowed to spend from someone elses account without approval
+	    .then(() => dgld.transferFrom(accounts[vapproval.from], accounts[vapproval.to], vapproval.amount), {from: accounts[vapproval.to]})
+	    .catch((error) => error)
+	    .then(error => requireError(error, errors.allowance))
+	//Approve the allowance
+	    .then(() => dgld.approve(accounts[vapproval.to],vapproval.amount, {from: accounts[vapproval.from]}))
+	//Check the allowance is correct
+	    .then(() => dgld.allowance(accounts[vapproval.from], accounts[vapproval.to]))
+	    .then( allowance => assert.equal(allowance.toNumber(), vapproval.amount, "incorrect allowance"))
+	// Not allowed to spend more than the approved amount
+	    .then(() => dgld.transferFrom(accounts[vapproval.from], accounts[vapproval.to], vapproval.amount + 1), {from: accounts[vapproval.to]})
+	    .catch((error) => error)
+	    .then(error => requireError(error, errors.allowance))
+	// Not allowed to spend more than is in the account
+	    .then(() => dgld.transferFrom(accounts[vapproval.from], accounts[vapproval.to], expected.initialSupply + 1), {from: accounts[vapproval.to]})
+	    .catch((error) => error)
+	    .then(error => requireError(error, errors.balance))
+	//Allowed to spend the approved amount
+	    .then(() => dgld.transferFrom(accounts[vapproval.from], accounts[vapproval.to], vapproval.amount, {from: accounts[vapproval.to]}))
+	//Check the final balances
+	    .then(() =>  dgld.balanceOf.call(accounts[vapproval.to]))
+	    .then(function(result){
+		assert.equal(result.toNumber(),toInitial+vapproval.amount, 'transfer: recipient balance is wrong');
+		return dgld.balanceOf.call(accounts[1]);
+	    })
+	    .then(function(result){
+		assert.equal(result.toNumber(), fromInitial-vapproval.amount, 'transfer: sender balance is wrong');
+	    })
+    });
+
+
+    it("should increase then decrease allowance by " + vapproval.amount, function() {
+	var dgld;
+	return DGLD.deployed().then(function(instance){
+	    dgld = instance;
+	})
+	//Check the allowance is zero
+	    .then(() => dgld.allowance(accounts[vapproval.from], accounts[vapproval.to]))
+	    .then( allowance => assert.equal(allowance.toNumber(), 0, "incorrect initial allowance"))
+	//Increase the allowance and confirm
+	    .then(() => dgld.increaseAllowance(accounts[vapproval.to],vapproval.amount, {from: accounts[vapproval.from]}))
+	    .then(() => dgld.allowance(accounts[vapproval.from], accounts[vapproval.to]))
+	    .then( allowance => assert.equal(allowance.toNumber(), vapproval.amount, "incorrect allowance after increaseAllowance"))
+	//Decrease the allowance and confirm
+	    .then(() => dgld.decreaseAllowance(accounts[vapproval.to],vapproval.amount, {from: accounts[vapproval.from]}))
+	    .then(() => dgld.allowance(accounts[vapproval.from], accounts[vapproval.to]))
+	    .then( allowance => assert.equal(allowance.toNumber(), 0, "incorrect allowance after decreaseAllowance"));
+    });
+
+    const cpeg = {
+	amount: 500,
+	from: 1
+    }
+    
+    it("should send " + cpeg.amount + " from account " + cpeg.from + " to the pegout address",
+       function() {
+	   var dgld;
+	   var initialPegBalance;
+	   var finalPegBalance;
+	   var initialAccBalance;
+	   var finalAccBalance;
+	   var pegAddress;
+	   return DGLD.deployed()
+	       .then(instance => dgld = instance)
+	       .then(() => dgld.getPegAddress.call())
+	       .then(result => pegAddress = result)
+	       .then(() =>  dgld.balanceOf.call(pegAddress))
+	       .then(result => initialPegBalance = result.toNumber())
+	       .then(() =>  dgld.balanceOf.call(accounts[cpeg.from]))
+	       .then(result => initialAccBalance = result.toNumber())
+	       .then(() => dgld.transfer(pegAddress, cpeg.amount,
+					 {from: accounts[cpeg.from]}))
+	       .then(() =>  dgld.balanceOf.call(pegAddress))
+	       .then(result => finalPegBalance = result.toNumber())
+	       .then(() =>  dgld.balanceOf.call(accounts[cpeg.from]))
+	       .then(result => finalAccBalance = result.toNumber())
+	       .then(() => assert.equal(finalAccBalance - initialAccBalance,
+					-500,
+					"account balance should have decreased by " + cpeg.amount))
+	       .then(() => assert.equal(finalPegBalance - initialPegBalance,
+					500,
+					"pegout balance should have increased by " + cpeg.amount));
+	   
+       });
+});
+
+
+contract('DGLD token minting tests', accounts => {
+    var vtotal = {
+	minted: 0
+    }
+
+    function totalSupply() {
+	return expected.initialSupply + vtotal.minted;
+    }
     
     it("only account[0] should have the minter role initially", function(){
 	var dgld;
-
+	
 	let chain = DGLD.deployed()
 	    .then(instance => dgld = instance);
-
+	
 	function checkMinter(acc, index) {
 	    if (index == 0) {
 		chain = chain.then( () => dgld.isMinter.call(acc))
 		    .then( function(result) {
 			isMinter = result;
-//			console.log(isMinter);
 			return assert.equal(isMinter,
 					    true,
 					    "account[0] should be a minter.");
@@ -135,7 +295,7 @@ contract('DGLD', accounts => {
     });
 
     const cmint = {
-	amount: 10000
+	amount: 1000
     }
 
     it("should mint " + cmint.amount + " tokens to account[0]", function(){
@@ -156,21 +316,21 @@ contract('DGLD', accounts => {
 		 );
     });
 
-    it("should fail to mint " + cmint.amount + "tokens from non-minter account[3]", () =>
+    it("should fail to mint " + cmint.amount + " tokens from non-minter account[3]", () =>
        {
 	   var dgld;
 	   return DGLD.deployed()
 	       .then(instance => dgld = instance)
 	       .then(() => dgld.mint(accounts[3], cmint.amount, { from: accounts[3] }))
+	       .catch((error) => error)
+	       .then(error => requireError(error, errors.nonMinter))
 	       .then(() => dgld.balanceOf.call(accounts[3]))
                .then(balance => {
 		   assert.equal(
 		       balance.valueOf(),
-		       1,
+		       0,
 		       "account[3] should be empty"
 		   )
-	       }).catch(function(error) {
-		   assert.equal(error.toString(), errors.nonMinter);
 	       })
        });
    
@@ -222,79 +382,19 @@ contract('DGLD', accounts => {
 	       .then(() => dgld.isMinter.call(accounts[nAccount]))
 	       .then( result => assert.equal(result, false, "account[" + nAccount + "] should not be a minter"))
 	       .then(() => dgld.mint(accounts[nAccount], crenounce.amount, {from: accounts[nAccount]}))
+	       .catch((error) => error)
+	       .then(error => requireError(error, errors.nonMinter))
 	       .then(() => dgld.balanceOf.call(accounts[nAccount]))
                .then(function(balance) {
-//		   console.log(balance.toNumber());
-//		   console.log(balance);
 		   return assert.equal(
 		       balance.toNumber(),
 		       initialBalance.toNumber(),
 		       "account[" + nAccount + "] should not have beeen able to mint tokens"
 		   );
 	       })
-       .catch(function(error) {
-		   assert.equal(error.toString(), errors.nonMinter);
-       })
-       });
-      
-
-
-    it("getPegAddress() should return " + expected.pegAddress.toString(), function() {
-	return DGLD.deployed()
-	    .then(instance => dgld.getPegAddress.call())
-	    .then(function(result) {
-//		console.log("Peg address:");
-//		console.log(result);
-		return assert.equal(
-		    result,
-		    expected.pegAddress,
-		    "value of getPegAddress() was not "  + expected.pegAdddress);
-	    }
-		 );
-    });
-
-
-    const cpeg = {
-	amount: 500,
-	from: 1
-    }
-    
-    it("should send " + cpeg.amount + " from account " + cpeg.from + " to the pegout address",
-       function() {
-	   var dgld;
-	   var initialPegBalance;
-	   var finalPegBalance;
-	   var initialAccBalance;
-	   var finalAccBalance;
-	   var pegAddress;
-	   return DGLD.deployed()
-	       .then(instance => dgld = instance)
-	       .then(() => dgld.getPegAddress.call())
-	       .then(result => pegAddress = result)
-	       .then(() =>  dgld.balanceOf.call(pegAddress))
-	       .then(result => initialPegBalance = result.toNumber())
-	       .then(() =>  dgld.balanceOf.call(accounts[cpeg.from]))
-	       .then(result => initialAccBalance = result.toNumber())
-	       .then(() => dgld.transfer(pegAddress, cpeg.amount,
-					 {from: accounts[cpeg.from]}))
-	       .then(() =>  dgld.balanceOf.call(pegAddress))
-	       .then(result => finalPegBalance = result.toNumber())
-	       .then(() =>  dgld.balanceOf.call(accounts[cpeg.from]))
-	       .then(result => finalAccBalance = result.toNumber())
-	       .then(() => assert.equal(finalAccBalance - initialAccBalance,
-					-500,
-					"account balance should have decreased by " + cpeg.amount))
-	       .then(() => assert.equal(finalPegBalance - initialPegBalance,
-					500,
-					"pegout balance should have increased by " + cpeg.amount));
-	   
        });
 
-    function totalSupply() {
-	return expected.initialSupply + vtotal.minted;
-    }
-    
-    it("totalSupply() should return the correct number of tokens" , function() {
+    it("totalSupply() should return the initial supply + the  number of tokens minted" , function() {
 	var dgld;
 	//Ensure that the total supply has been changed
 	assert.notEqual(expected.initialSupply, totalSupply(), "total supply has not changed");
@@ -304,11 +404,12 @@ contract('DGLD', accounts => {
 	    .then( () => dgld.totalSupply.call())
 	    .then( function(result) {
 		let ts=result.toNumber();
-//		console.log(ts);
-//		console.log(totalSupply);
 		return assert.equal(ts,
 				    totalSupply(),
 				    "totalSupply() amount incorrect: " + ts.toString());
 	    });
     });
+  
 });
+
+
