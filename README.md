@@ -5,8 +5,9 @@ Goldtoken DGLD ERC20 Smart Contracts dgld.ch
 See 'requirements.sh'
 
 ## To run the tests
+Start a test blockchain using Ganache (https://www.trufflesuite.com/ganache), then:
 ```
-truffle test
+$ truffle test
 ```
 
 ## Pegout instructions
