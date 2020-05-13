@@ -2,11 +2,12 @@
 Goldtoken DGLD ERC20 Smart Contracts dgld.ch
 
 ## Requirements
-### truffle v5.1.24:
+See 'requirements.sh'
+
+## To run the tests
 ```
-npm install -g truffle@5.1.24
+truffle test
 ```
-### openzeppelin-solidity v2.5.0:
-```
-npm install openzeppelin-solidity@2.5.0
-```
+
+## Pegout instructions
+See the comments in contracts/DGLD.sol for the pegout instructions.
