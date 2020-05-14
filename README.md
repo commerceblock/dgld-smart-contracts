@@ -21,4 +21,4 @@ $ truffle compile
 $ truffle migrate --network <network>
 ```
 
-where <network> is either ```development``` (local) or ```ropsten``` (Ethereum POW testnet).
+where ```<network>``` is either ```development``` (local) or ```ropsten``` (Ethereum POW testnet).
