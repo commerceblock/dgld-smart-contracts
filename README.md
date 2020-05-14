@@ -12,3 +12,13 @@ $ truffle test
 
 ## Pegout instructions
 See the comments in contracts/DGLD.sol for the pegout instructions.
+
+
+## Deploy to testnet
+
+```
+$ truffle compile
+$ truffle migrate --network <network>
+```
+
+where <network> is either ```development``` (local) or ```ropsten``` (Ethereum POW testnet).
