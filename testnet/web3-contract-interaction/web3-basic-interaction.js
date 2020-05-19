@@ -2,22 +2,6 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 const our_contract_json = require("../../build/contracts/DGLD.json");
 
-const fs = require('fs')
-
-function jsonReader(filePath, cb) {
-    fs.readFile(filePath, (err, fileData) => {
-        if (err) {
-            return cb && cb(err)
-        }
-        try {
-            const object = JSON.parse(fileData)
-            return cb && cb(null, object)
-        } catch(err) {
-            return cb && cb(err)
-        }
-    })
-}
-
 require('dotenv').config()     
 
 const provider = new HDWalletProvider(process.env.MNEMONIC, "https://ropsten.infura.io/v3/" + process.env.INFURA_API_KEY);
@@ -89,72 +73,47 @@ const parseContractAbiAsync = (our_contract_abi) => {
 
 
 
-jsonReader('../../build/contracts/DGLD.json', (err, our_contract_json_2) => {
-    if (err) {
-        console.log(err)
-        return
-    }
-
-    const our_contract_abi=our_contract_json['abi'];
-    
-//    console.log("abi:");
-//    console.log(our_contract_abi);
-
-    return parseContractAbiAsync(our_contract_abi).then(function(contract) {
-	console.log(`Our Contract address:
+return parseContractAbiAsync(our_contract_json['abi']).then(function(contract) {
+    console.log(`Our Contract address:
             ${contract._address}`);
-
-//	    console.log(contract);
-
-	var balance;
-	
-	contract.methods.name().call()
-	    .then(result =>result.toString())
-	    .then(result => console.log("name:" + result))
-	    .catch(error => console.log(error.message))
-	    .then(() => contract.methods.totalSupply().call())
-	    .then(result =>result.toString())
-	    .then(result => console.log("totalSupply:" + result))
-	    .catch(error => console.log(error.message))
-	    .then( () => console.log("minting 1000 tokens and getting balance..."))
-	    .then(() => web3.eth.getAccounts().then(function(accounts) {
-		const addr = accounts[0];
-		web3.eth.defaultAccount = addr;
-		//Mint tokens to address
-		contract.methods.mint(addr,1000).send({from:addr})
-		    .catch(error => console.log(error.message))
-		    .then(() => balance = contract.methods.balanceOf(addr).call()
-			  .then(result => {
-			      balance = new BN(result)
-			      console.log("balance after minting:" + balance);
-			      return balance
-			  })
-			  .catch(error => console.log(error.message)))
-		    .then(() => console.log("sending all DGLD tokens to burn address..."))
-		    .then( () => contract.methods.pegoutAddress().call())
-		    .then( pegAddr => contract.methods.transfer(pegAddr,balance).send({from:addr}))
-		    .catch(error => console.log(error.message))
-		    .then(() => contract.methods.totalSupply().call())
-		    .then(result => console.log("total supply after sending to burn address:" + result))
-		    .catch(error => console.log(error.message))
-		    .then(() => contract.methods.balanceOf(addr).call())
-		    .then(result => {
-			console.log("balance after sending to burn address:" + result);
-		    });
-		
-		
-	    //Send all tokens to burn address
-//	    
-//	    contract.methods.pegoutAddress().call()
-//		.then(result => contract.methods.transfer(result,balance).send({from:addr}))
-//		.catch(error => console.log(error.message));
-
-
-
-
-
-
+    
+    var balance;
+    
+    contract.methods.name().call()
+	.then(result =>result.toString())
+	.then(result => console.log("name:" + result))
+	.catch(error => console.log(error.message))
+	.then(() => contract.methods.totalSupply().call())
+	.then(result =>result.toString())
+	.then(result => console.log("totalSupply:" + result))
+	.catch(error => console.log(error.message))
+	.then( () => console.log("minting 1000 tokens and getting balance..."))
+	.then(() => web3.eth.getAccounts().then(function(accounts) {
+	    const addr = accounts[0];
+	    web3.eth.defaultAccount = addr;
+	    //Mint tokens to address
+	    contract.methods.mint(addr,1000).send({from:addr})
+		.catch(error => console.log(error.message))
+		.then(() => balance = contract.methods.balanceOf(addr).call()
+		      .then(result => {
+			  balance = new BN(result)
+			  console.log("balance after minting:" + balance);
+			  return balance
+		      })
+		      .catch(error => console.log(error.message)))
+		.then(() => console.log("sending all DGLD tokens to burn address..."))
+		.then( () => contract.methods.pegoutAddress().call())
+		.then( pegAddr => contract.methods.transfer(pegAddr,balance).send({from:addr}))
+		.catch(error => console.log(error.message))
+		.then(() => contract.methods.totalSupply().call())
+		.then(result => console.log("total supply after sending to burn address:" + result))
+		.catch(error => console.log(error.message))
+		.then(() => contract.methods.balanceOf(addr).call())
+		.then(result => {
+		    console.log("balance after sending to burn address:" + result);
+		})
 	    
-	    }))
-    }).catch(err => console.log('Failed to parse the contract'));
-});
+	    
+	}))
+}).catch(err => console.log('Failed to parse the contract'));    
+	      
