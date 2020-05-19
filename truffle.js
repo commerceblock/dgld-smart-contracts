@@ -1,6 +1,6 @@
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 
-const mnemonic = "main lava build hamster radio knee truck resist round blur burden glow";
+require('dotenv').config()
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
@@ -12,10 +12,12 @@ module.exports = {
       network_id: "*" // Match any network id
     },
     ropsten: {
-      provider: function() {
-          return new HDWalletProvider(mnemonic, "https://ropsten.infura.io/v3/d5404e2201314a19b3a346fc02ecd7ec")
-      },
-      network_id: 3
+	provider: new HDWalletProvider(process.env.MNEMONIC, "https://ropsten.infura.io/v3/" + process.env.INFURA_API_KEY),
+	network_id: 3,
+	gas: 3000000,
+	gasPrice: 10000000000
     }
   }
 };
+
+

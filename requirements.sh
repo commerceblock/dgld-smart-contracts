@@ -4,3 +4,4 @@ npm install openzeppelin-solidity@2.5.0
 npm install --save-dev @openzeppelin/test-environment@2.5.0
 npm install --save-dev mocha chai
 npm install @truffle/hdwallet-provider
+npm install --save dotenv
