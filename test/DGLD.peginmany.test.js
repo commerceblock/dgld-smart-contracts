@@ -20,8 +20,8 @@ contract('DGLD high-volume pegin test', accounts => {
     it("should only store previous 1000 pegin ids in the contract" , async function() {
 	var dgld;
 
-	const nstored=1000;
-	const ncheck=5;
+	const nstored=100;
+	const ncheck=10;
 	var npegs = nstored;
 	var balance = [];
 	var mintBalance = [];

@@ -12,7 +12,7 @@ exports.errors = {
     nonMinter: "Error: Returned error: VM Exception while processing transaction: revert MinterRole: caller does not have the Minter role -- Reason given: MinterRole: caller does not have the Minter role.",
     allowance: "Error: Returned error: VM Exception while processing transaction: revert ERC20: transfer amount exceeds allowance -- Reason given: ERC20: transfer amount exceeds allowance.",
     balance: "Error: Returned error: VM Exception while processing transaction: revert ERC20: transfer amount exceeds balance -- Reason given: ERC20: transfer amount exceeds balance.",
-    pegindupe: "Error: Returned error: VM Exception while processing transaction: revert a pegin with the given id has already been done -- Reason given: a pegin with the given id has already been done."
+    pegin: "Error: Returned error: VM Exception while processing transaction: revert wrong pegin id -- Reason given: wrong pegin id."
 }
 
 exports.requireError = function(error, expectedError){

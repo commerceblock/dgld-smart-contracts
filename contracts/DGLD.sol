@@ -3,7 +3,6 @@ pragma solidity ^0.5.16;
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
-import "./SizedSet.sol";
 
 /// @title wrapped-DGLD
 /// @author CommerceBlock
@@ -15,13 +14,14 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
   //DGLD pegout address
   address constant private _pegoutAddress = 0x00000000000000000000000000000000009ddEAd;
 
-  SizedSet private _pegins;
+  using SafeMath for uint64;
+
+  mapping (address => uint64) private _peginID;
 
   //name, symbol, decimals
   constructor() public ERC20Detailed("DGLD", "DGLD", 8)
                        ERC20Mintable(){
      mint(msg.sender, _initialSupply);
-     _pegins = new SizedSet(1000);
   }
 
 
@@ -88,11 +88,12 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
      * See {super.mint} and {taggedTransfer}
      *
      */
-  function pegin(address to, uint256 amount, bytes32 id) public onlyMinter returns (bool){
-  	require(_pegins.add(id), "a pegin with the given id has already been done");  
-  	super.mint(to, amount);
+  function pegin(address to, uint256 amount, uint64 id) public onlyMinter returns (bool){
+  	require(id == _peginID[to].add(1), "wrong pegin id");
+	_peginID[to] = id;
+	super.mint(to, amount);
         emit Pegin(id);
-        return true;	
+	return true;
   }
 
  /**
@@ -102,6 +103,6 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
    * see {pegin}.
    *
    */
-   event Pegin(bytes32 indexed id);
+   event Pegin(uint64 indexed id);
 }
 
