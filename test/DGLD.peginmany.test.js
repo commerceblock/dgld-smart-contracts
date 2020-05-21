@@ -5,22 +5,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/*
-async function demo() {
-  console.log('Taking a break...');
-  await sleep(2000);
-  console.log('Two seconds later, showing sleep in a loop...');
-
-  // Sleep in loop
-  for (let i = 0; i < 5; i++) {
-    if (i === 3)
-      await sleep(2000);
-    console.log(i);
-  }
-}
-
-*/
-
 //Start test block
 contract('DGLD high-volume pegin test', accounts => {
     const cpegin = {
@@ -33,52 +17,102 @@ contract('DGLD high-volume pegin test', accounts => {
     }
     
 
-    it("should only store previous 1000 pegin ids in the contract" , function() {
+    it("should only store previous 1000 pegin ids in the contract" , async function() {
 	var dgld;
 
 	const nstored=1000;
-	const npegs=nstored*2;
+	const ncheck=5;
+	var npegs = nstored;
+	var balance = [];
+	var mintBalance = [];
 	
 	//Pegin id
 	var id = 1;
 	var pr;
 
 	var bn = web3.utils.BN;
-	
-	let chain = DGLD.deployed()
-	    .then(instance => dgld = instance);
+
+	dgld = await DGLD.deployed();
+    
+	var pegCount=0;
 
 	function doPegin(){
-	    chain = chain.then(()=>{
-		vtotal.peggedIn += cpegin.amount;
-		//	dgld.pegin(accounts[5], cpegin.amount, web3.utils.padLeft(web3.utils.numberToHex(id),16));
-		dgld.mint(accounts[5], cpegin.amount);
-		id = id+1;
-	    }).then(()=>sleep(1))
+	    vtotal.peggedIn += cpegin.amount;
+	    //dgld.pegin(accounts[5], cpegin.amount, web3.utils.randomHex(32));
+	    dgld.pegin(accounts[5], cpegin.amount, web3.utils.padLeft(web3.utils.numberToHex(pegCount+1),16));
+	    pegCount++;
+	}
 
+	function doMintPegin(){
+	    vtotal.peggedIn += cpegin.amount;
+	    dgld.mint(accounts[5], cpegin.amount);
+	    pegCount++;
 	}
-	
-	
-	for(var i=0; i<npegs; i++){
-	    doPegin();
+
+	async function doPeginLoop(n) {
+	    for(let i=0; i<n; i++){
+		await doPegin();
+		await sleep(1);
+	    }
 	}
+
+	async function doMintPeginLoop(n) {
+	    for(let i=0; i<n; i++){
+		await doMintPegin();
+		await sleep(1);
+	    }
+	}
+
+	async function doCheckLoop() {
+	    for(var j=0; j < ncheck; j++){
+		await doPeginLoop(npegs);
+		const result = await web3.eth.getBalance(accounts[0]);
+		balance[j] = result;
+	    }
+	}
+
+	async function doCheckMintLoop() {
+	    for(var j=0; j < ncheck; j++){
+		await doMintPeginLoop(npegs);
+		const result = await web3.eth.getBalance(accounts[0]);
+		mintBalance[j] = result;
+	    }
+	}
+
+
+	await doCheckLoop();
+
+	console.log("pegins:");
+	for(var i=1; i<ncheck; i++){
+	    console.log("ETH required for " + npegs + " pegins: " + web3.utils.fromWei((balance[i-1]-balance[i]).toString()).toString());		    
+	};
+ 
+	result = await dgld.balanceOf.call(accounts[5]);
+	assert.equal(
+	    result.toNumber(),
+	    cpegin.amount * npegs * ncheck,
+	    "account[5] has wrong amount"
+	);
+
+	await doCheckMintLoop();
+
+	console.log("mints:");
+	for(var i=1; i<ncheck; i++){
+	    console.log("ETH required for " + npegs + " pegins: " + web3.utils.fromWei((mintBalance[i-1]-mintBalance[i]).toString()).toString());		    
+	};
+
+	result = await dgld.balanceOf.call(accounts[5]);
+	assert.equal(
+	    result.toNumber(),
+	    cpegin.amount * npegs * ncheck * 2,
+	    "account[5] has wrong amount"
+	);
+	
+	return true;
+    });
+});
+
     
-	chain = chain
-	    .then(() => dgld.balanceOf.call(accounts[5]))
-            .then(function(balance) {
-		assert.equal(
-		    balance.toNumber(),
-		    cpegin.amount * npegs,
-		    "account[5] has wrong amount"
-		)
-	    });
 
-
-	
-	return chain;
-    });
-
-
-    });
 
 

@@ -91,7 +91,7 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
   function pegin(address to, uint256 amount, bytes32 id) public onlyMinter returns (bool){
   	require(_pegins.add(id), "a pegin with the given id has already been done");  
   	super.mint(to, amount);
-        emit Pegin(to,amount, id);
+        emit Pegin(id);
         return true;	
   }
 
@@ -102,7 +102,6 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
    * see {pegin}.
    *
    */
-   event Pegin(address indexed to, uint256 amount, bytes32 indexed id);
-
+   event Pegin(bytes32 indexed id);
 }
 

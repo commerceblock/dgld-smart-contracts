@@ -36,7 +36,7 @@ contract('DGLD pegin tests', accounts => {
 		)
 	    })
     });
-    
+
     it("should fail to pegin with duplicated pegin id" , function() {
 	var dgld;
 	
@@ -63,7 +63,6 @@ contract('DGLD pegin tests', accounts => {
 	    })
     });
     
-    
     it("pegin() should emit the correct events" , function() {
 	var dgld;
 	
@@ -85,10 +84,7 @@ contract('DGLD pegin tests', accounts => {
 	    .then(() => assert.equal(pr.logs[0].args[0], 0))
 	    .then(() => assert.equal(pr.logs[0].args[1], accounts[4]))
 	    .then(() => assert.equal(pr.logs[0].args[2], cpegin.amount))
-	    .then(() => assert.equal(pr.logs[1].args[0], accounts[4]))
-	    .then(() => assert.equal(pr.logs[1].args[1], cpegin.amount))
-	    .then(() => assert.equal(pr.logs[1].args[2], id));
-	
+	    .then(() => assert.equal(pr.logs[1].args[0], id))
     });
     
 });
