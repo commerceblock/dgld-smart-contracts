@@ -14,9 +14,9 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
   //DGLD pegout address
   address constant private _pegoutAddress = 0x00000000000000000000000000000000009ddEAd;
 
-  using SafeMath for uint64;
+  using SafeMath for uint256;
 
-  mapping (address => uint64) private _peginID;
+  mapping (address => uint256) private _peginID;
 
   //name, symbol, decimals
   constructor() public ERC20Detailed("DGLD", "DGLD", 8)
@@ -88,7 +88,7 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
      * See {super.mint} and {taggedTransfer}
      *
      */
-  function pegin(address to, uint256 amount, uint64 id) public onlyMinter returns (bool){
+  function pegin(address to, uint256 amount, uint256 id) public onlyMinter returns (bool){
   	require(id == _peginID[to].add(1), "wrong pegin id");
 	_peginID[to] = id;
 	super.mint(to, amount);
@@ -103,6 +103,6 @@ contract DGLD is ERC20Detailed, ERC20Mintable {
    * see {pegin}.
    *
    */
-   event Pegin(uint64 indexed id);
+   event Pegin(uint256 indexed id);
 }
 
