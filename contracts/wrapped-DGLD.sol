@@ -77,7 +77,7 @@ contract wrapped_DGLD is ERC20Detailed, ERC20Mintable {
      * @dev Mints tokens and transfers them, emitting a Pegin event containg the pegin ID.
      * The pegin ID must begin at 1 and be incremented by 1 for successive pegins to the same address.
      *
-     * See {super.mint} and {taggedTransfer}
+     * See {super.mint} and {Pegin}
      *
      */
   function pegin(address to, uint256 amount, uint256 id) public onlyMinter returns (bool){
