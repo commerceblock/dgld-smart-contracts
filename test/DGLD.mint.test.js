@@ -1,4 +1,4 @@
-const DGLD = artifacts.require('DGLD');
+const DGLD = artifacts.require('wrapped_DGLD');
 const tf = require('./testfuncs.js');
 
 contract('DGLD token minting tests', accounts => {

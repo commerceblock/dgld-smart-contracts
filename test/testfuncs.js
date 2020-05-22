@@ -1,8 +1,8 @@
-const DGLD = artifacts.require('DGLD');
+const DGLD = artifacts.require('wrapped_DGLD');
 
 exports.expected = {
-    name: "DGLD",
-    symbol: "DGLD",
+    name: "wrapped-DGLD",
+    symbol: "wDGLD",
     decimals: 8,
     initialSupply: 0,
     pegoutAddress: "0x00000000000000000000000000000000009ddEAd"
