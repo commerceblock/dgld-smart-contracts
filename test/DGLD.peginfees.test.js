@@ -6,7 +6,7 @@ function sleep(ms) {
 }
 
 //Start test block
-contract('DGLD high-volume pegin test', accounts => {
+contract('DGLD pegin gas fee test', accounts => {
     const cpegin = {
 	amount: 1000,
 	gas_eth: 0.000914,
@@ -28,8 +28,8 @@ contract('DGLD high-volume pegin test', accounts => {
     it("the expected gas fee should converge to  " + cpegin.gas_eth + "+/-" + cpegin.gas_eth_tol + " per pegin transaction", async function() {
 	var dgld;
 
-	const ncheck=10;
-	var npegs = 1000;
+	const ncheck=5;
+	var npegs = 100;
 	var balance = [];
 	var mintBalance = [];
 	
@@ -45,7 +45,6 @@ contract('DGLD high-volume pegin test', accounts => {
 
 	function doPegin(){
 	    vtotal.peggedIn += cpegin.amount;
-	    //dgld.pegin(accounts[5], cpegin.amount, web3.utils.randomHex(32));
 	    dgld.pegin(accounts[5], cpegin.amount, web3.utils.padLeft(web3.utils.numberToHex(pegCount+1),16));
 	    pegCount++;
 	}
@@ -59,14 +58,12 @@ contract('DGLD high-volume pegin test', accounts => {
 	async function doPeginLoop(n) {
 	    for(let i=0; i<n; i++){
 		await doPegin();
-		await sleep(1);
 	    }
 	}
 
 	async function doMintPeginLoop(n) {
 	    for(let i=0; i<n; i++){
 		await doMintPegin();
-		await sleep(1);
 	    }
 	}
 
