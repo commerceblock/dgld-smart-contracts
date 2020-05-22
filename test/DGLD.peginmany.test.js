@@ -9,7 +9,15 @@ function sleep(ms) {
 contract('DGLD high-volume pegin test', accounts => {
     const cpegin = {
 	amount: 1000,
-	id: "0x6a35c3e032e1bf67d874bc0f008042ce467e0baa2fbb9a1086b6bb247175e9e3"
+	gas_eth: 0.000914,
+	gas_eth_tol:0.000001
+	
+    }
+
+    const cmint = {
+	amount: cpegin.amount,
+	gas_eth: 0.000741,
+	gas_eth_tol: 0.000001
     }
 
     const vtotal = {
@@ -17,12 +25,11 @@ contract('DGLD high-volume pegin test', accounts => {
     }
     
 
-    it("should only store previous 1000 pegin ids in the contract" , async function() {
+    it("the expected gas fee should converge to  " + cpegin.gas_eth + "+/-" + cpegin.gas_eth_tol + " per pegin transaction", async function() {
 	var dgld;
 
-	const nstored=100;
 	const ncheck=10;
-	var npegs = nstored;
+	var npegs = 1000;
 	var balance = [];
 	var mintBalance = [];
 	
@@ -82,9 +89,14 @@ contract('DGLD high-volume pegin test', accounts => {
 
 	await doCheckLoop();
 
-	console.log("pegins:");
+	console.log("ETH used for " + npegs + " pegins per line:");
 	for(var i=1; i<ncheck; i++){
-	    console.log("ETH required for " + npegs + " pegins: " + web3.utils.fromWei((balance[i-1]-balance[i]).toString()).toString());		    
+	    var gasUsedEth = web3.utils.fromWei((balance[i-1]-balance[i]).toString());
+	    var gasPerPegin = gasUsedEth/npegs;
+	    if(	i > 1) {
+		assert((gasPerPegin - cpegin.gas_eth) < cpegin.gas_eth_tol, "pegins used the wring amount of gas");
+	    }
+	    console.log(gasUsedEth);		    
 	};
  
 	result = await dgld.balanceOf.call(accounts[5]);
@@ -96,9 +108,14 @@ contract('DGLD high-volume pegin test', accounts => {
 
 	await doCheckMintLoop();
 
-	console.log("mints:");
+	console.log("ETH used for " + npegs + " mints per line:");
 	for(var i=1; i<ncheck; i++){
-	    console.log("ETH required for " + npegs + " pegins: " + web3.utils.fromWei((mintBalance[i-1]-mintBalance[i]).toString()).toString());		    
+	    var gasUsedEth = web3.utils.fromWei((mintBalance[i-1]-mintBalance[i]).toString());
+	    var gasPerPegin = gasUsedEth/npegs;
+	    if(	i > 1) {
+		assert((gasPerPegin - cmint.gas_eth) < cmint.gas_eth_tol, "mints used the wrong amount of gas");
+	    }
+	    console.log(gasUsedEth);		    
 	};
 
 	result = await dgld.balanceOf.call(accounts[5]);
@@ -110,6 +127,7 @@ contract('DGLD high-volume pegin test', accounts => {
 	
 	return true;
     });
+
 });
 
     
