@@ -8,8 +8,6 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
 /// @author The CommerceBlock Developers
 /// @notice This is the contract for the wrapped-DGLD ERC20 token.
 contract wrapped_DGLD is ERC20Detailed, ERC20Mintable {
-  //Tokens * decimals
-  uint256 constant private _initialSupply = 0;
 
   //wrapped-DGLD pegout address
   address constant private _pegoutAddress = 0x00000000000000000000000000000000009ddEAd;
@@ -21,18 +19,7 @@ contract wrapped_DGLD is ERC20Detailed, ERC20Mintable {
   //name, symbol, decimals
   constructor() public ERC20Detailed("wrapped-DGLD", "wDGLD", 8)
                        ERC20Mintable(){
-     mint(msg.sender, _initialSupply);
   }
-
-
-  /**	
-     * @notice A function to get the initial supply of tokens.
-    */
-  function initialSupply() public pure returns (uint256)
-  {
-     return _initialSupply;
-  }
-
 
   /**	
      * @notice A function to get the pegout address.

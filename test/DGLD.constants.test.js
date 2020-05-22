@@ -21,19 +21,6 @@ contract('DGLD constants and initialization test', accounts => {
 	    .then( decimals => assert.equal(decimals, tf.expected.decimals, "incorrect decimals"));
     });
         
-    it("initialSupply() should return " + tf.expected.initialSupply.toString(), function()
-       {
-	   return DGLD.deployed()
-	       .then(instance => instance.initialSupply.call())
-	       .then(result =>
-		   assert.equal(
-		   result.toNumber(),
-		       tf.expected.initialSupply,
-		       "initialSupply() was not "  + tf.expected.initialSupply.toString()))
-	   
-       }
-      );
-
     it("should put " + tf.expected.initialSupply + " tokens in account[0] initially", function() {
 	var dgld;
 	return DGLD.deployed().then(function(instance){
