@@ -86,14 +86,14 @@ contract('DGLD pegin gas fee test', accounts => {
 
 	await doCheckLoop();
 
-	console.log("ETH used for " + npegs + " pegins per line:");
+	//console.log("ETH used for " + npegs + " pegins per line:");
 	for(var i=1; i<ncheck; i++){
 	    var gasUsedEth = web3.utils.fromWei((balance[i-1]-balance[i]).toString());
 	    var gasPerPegin = gasUsedEth/npegs;
 	    if(	i > 1) {
 		assert((gasPerPegin - cpegin.gas_eth) < cpegin.gas_eth_tol, "pegins used the wring amount of gas");
 	    }
-	    console.log(gasUsedEth);		    
+	    //console.log(gasUsedEth);		    
 	};
  
 	result = await dgld.balanceOf.call(accounts[5]);
@@ -105,14 +105,14 @@ contract('DGLD pegin gas fee test', accounts => {
 
 	await doCheckMintLoop();
 
-	console.log("ETH used for " + npegs + " mints per line:");
+	//console.log("ETH used for " + npegs + " mints per line:");
 	for(var i=1; i<ncheck; i++){
 	    var gasUsedEth = web3.utils.fromWei((mintBalance[i-1]-mintBalance[i]).toString());
 	    var gasPerPegin = gasUsedEth/npegs;
 	    if(	i > 1) {
 		assert((gasPerPegin - cmint.gas_eth) < cmint.gas_eth_tol, "mints used the wrong amount of gas");
 	    }
-	    console.log(gasUsedEth);		    
+	    //console.log(gasUsedEth);		    
 	};
 
 	result = await dgld.balanceOf.call(accounts[5]);
