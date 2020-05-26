@@ -1,6 +1,6 @@
 const HDWalletProvider = require("@truffle/hdwallet-provider"); 
 
-const our_contract_json = require("../../build/contracts/DGLD.json");
+const our_contract_json = require("../../build/contracts/wrapped_DGLD.json");
 
 require('dotenv').config()     
 
@@ -27,7 +27,7 @@ web3.eth.getBlockNumber().then(function(blockNumber) {
       console.log(`Block Number: ${blockNumber}`);
 })
 
-const our_contract_address="0x9e9F0f8DCD636B0FBBE644649189b4578b4D2eDf"
+const our_contract_address="0x759B3c3E1A93b473D28Be50Fc15A305Ce7ae3990"
 
 web3.eth.getBalance(our_contract_address).then(function(balance) {
       console.log(`Balance of ${our_contract_address}: ${balance} ETH`);
@@ -87,14 +87,15 @@ return parseContractAbiAsync(our_contract_json['abi']).then(function(contract) {
 	.then(result =>result.toString())
 	.then(result => console.log("totalSupply:" + result))
 	.catch(error => console.log(error.message))
-	.then( () => console.log("minting 1000 tokens and getting balance..."))
+	.then( () => console.log("pegging in 1000 tokens and getting balance..."))
 	.then(() => web3.eth.getAccounts().then(function(accounts) {
-	    const addr = accounts[0];
-	    web3.eth.defaultAccount = addr;
-	    //Mint tokens to address
-	    contract.methods.mint(addr,1000).send({from:addr})
+	    const addr0 = accounts[0];
+	    const addr1 = accounts[0];
+	    web3.eth.defaultAccount = addr0;
+	    //Pegin tokens to address
+	    contract.methods.pegin(addr1,1000,1).send({from:addr0})
 		.catch(error => console.log(error.message))
-		.then(() => balance = contract.methods.balanceOf(addr).call()
+		.then(() => balance = contract.methods.balanceOf(addr1).call()
 		      .then(result => {
 			  balance = new BN(result)
 			  console.log("balance after minting:" + balance);
@@ -103,12 +104,12 @@ return parseContractAbiAsync(our_contract_json['abi']).then(function(contract) {
 		      .catch(error => console.log(error.message)))
 		.then(() => console.log("sending all DGLD tokens to burn address..."))
 		.then( () => contract.methods.pegoutAddress().call())
-		.then( pegAddr => contract.methods.transfer(pegAddr,balance).send({from:addr}))
+		.then( pegAddr => contract.methods.transfer(pegAddr,balance).send({from:addr1}))
 		.catch(error => console.log(error.message))
 		.then(() => contract.methods.totalSupply().call())
 		.then(result => console.log("total supply after sending to burn address:" + result))
 		.catch(error => console.log(error.message))
-		.then(() => contract.methods.balanceOf(addr).call())
+		.then(() => contract.methods.balanceOf(addr1).call())
 		.then(result => {
 		    console.log("balance after sending to burn address:" + result);
 		})
