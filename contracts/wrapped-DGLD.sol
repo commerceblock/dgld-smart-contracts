@@ -53,7 +53,8 @@ contract wrapped_DGLD is ERC20Detailed, ERC20Mintable {
      * 3) Obtain the pegout address using the pegoutAddress() function.
      * 4) Transfer the required number of tokens from the sender account to the pegout address.
      *
-     *  
+     *
+     * 24/7 operational uptime for the service is not guaranteed by the service provider.  
     */
   function pegoutAddress() public pure returns (address) {
       return _pegoutAddress;
