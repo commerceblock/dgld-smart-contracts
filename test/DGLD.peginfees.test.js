@@ -29,7 +29,7 @@ contract('DGLD pegin gas fee test', accounts => {
 	var dgld;
 
 	const ncheck=5;
-	var npegs = 100;
+	var npegs = 10;
 	var balance = [];
 	var mintBalance = [];
 	

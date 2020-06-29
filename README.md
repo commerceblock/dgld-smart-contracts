@@ -4,6 +4,11 @@ Goldtoken DGLD ERC20 Smart Contracts dgld.ch
 ## Requirements
 See 'requirements.sh'
 
+## To run in a docker environment:
+
+```
+
+
 ## To run the tests
 ### Using Ganache
 Start a test blockchain using Ganache (https://www.trufflesuite.com/ganache), then:
