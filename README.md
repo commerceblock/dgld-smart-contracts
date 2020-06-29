@@ -4,10 +4,22 @@ Goldtoken DGLD ERC20 Smart Contracts dgld.ch
 ## Requirements
 See 'requirements.sh'
 
-## To run in a docker environment:
+## Docker environment:
+### Build:
+```
+docker build -t dgld-smart-contract .
 
 ```
+### Test:
+```
+$ docker run --rm -it -e MNEMONIC=<TEST MNEMONIC> -e INFURA_API_KEY=<INFURA API KEY> dgld-smart-contract bash -c "cd /usr/src/ && truffle develop"
+truffle(develop)> test
+```
 
+### Run bash in container:
+```                                                                                      
+$ docker run --rm -it -e MNEMONIC=<MNEMONIC> -e INFURA_API_KEY=<INFURA API KEY> dgld-smart-contract bash -c "cd /usr/src/"
+```
 
 ## To run the tests
 ### Using Ganache
