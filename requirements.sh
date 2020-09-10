@@ -5,4 +5,4 @@ npm install --save-dev mocha@8.0.1 chai@4.2.0
 npm install truffle-hdwallet-provider@1.0.17
 npm install --save dotenv@8.2.0
 npm install chai@4.2.0
-npm install mocha@8.0.1
+npm install mocha@7
