@@ -50,7 +50,7 @@ $ sudo n 11
 ```
 
 ## Pegout instructions
-To transfer tokens from a wrapped-DGLD address to a DGLD address: see the comments in contracts/wrapped-DGLD.sol for the pegout instructions. 
+To transfer tokens from a wrapped-DGLD address to the corresponding DGLD address: see the comments in contracts/wrapped-DGLD.sol for the pegout instructions. 
 
 ## Pegin instructions 
 To transfer tokens from a nominated DGLD address to the corresponding wrapped-DGLD Ethereum address:
