@@ -56,17 +56,19 @@ To transfer tokens from a nominated DGLD address to the corresponding wrapped-DG
 
 1) Obtain the private key from the address you will send the tokens from e.g. in ocean wallet: 
 
-       If the address tab is not visible click View->Show addresses
-       Open the addresses tab
-       Right click the address you will send the tokens from and select “Private key”. The private
-       key is in WIF format and is the string of characters beginning with ‘T’
-       Convert the private key from WIF format to HEX format. This step is required in order to
-       import the key into an Ethereum wallet. There are tools available in the ‘ethbridge’
-       package (https://github.com/commerceblock/ethbridge) for doing this. In python:
+If the address tab is not visible click View->Show addresses
+Open the addresses tab
+Right click the address you will send the tokens from and select “Private key”. The private
+key is in WIF format and is the string of characters beginning with ‘T’.
+Convert the private key from WIF format to HEX format. This step is required in order to
+import the key into an Ethereum wallet. There are tools available in the ‘ethbridge’
+package (https://github.com/commerceblock/ethbridge) for doing this. In python:
 
-       	       >>> from bridge.utils import wif_to_priv_hex
-      	       >>> wif_to_priv_hex(‘your_wif_priv_key’)
-               >>> wif_to_eth_address(‘your_wif_priv_key’)
+```
+>>> from bridge.utils import wif_to_priv_hex
+>>> wif_to_priv_hex(‘your_wif_priv_key’)
+>>> wif_to_eth_address(‘your_wif_priv_key’)
+```
 
 2) Import the private key into an Ethereum wallet:
        In metamask, click on the account icon in the top right. Click in import wallet, enter the
