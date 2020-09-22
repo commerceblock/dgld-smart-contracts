@@ -50,8 +50,9 @@ $ sudo n 11
 ```
 
 ## Pegout instructions
-See the comments in contracts/wrapped-DGLD.sol for the pegout instructions. More detailed pegout instructions are below:
+See the comments in contracts/wrapped-DGLD.sol for the pegout instructions. 
 
+## Pegin instructions 
 To transfer tokens from a nominated DGLD address to the corresponding wrapped-DGLD Ethereum address:
 
 1) Obtain the private key from the address you will send the tokens from e.g. in ocean wallet: 
@@ -78,17 +79,10 @@ package (https://github.com/commerceblock/ethbridge) for doing this. In python:
        address.
 
 3) You can now send tokens from your nominated DGLD address to the Ethereum bridge address and they
-will be transferred to the corresponding Ethereum address. See the smart contract for the ethereum 
-bridge address.
-
-## Pegin instructions
-
-To transfer from wrapped-DGLD back to DGLD you must have a whitelisted DGLD address with the same
-private key as the one you send the wrapped-DGLD tokens from. Otherwise the tokens will be lost.
+will be transferred to the corresponding Ethereum address. 
 
 The bridge address (DGLD -> wrapped_DGLD) is:
 GYCkMfvPea7A3uftYaBzYqvHYfv4mcx8M9
-
 
 ## Deploy to testnet
 
